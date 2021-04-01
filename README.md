@@ -21,14 +21,11 @@ and then restart the docker instance.
 
 # Using
 You'll need to create a database for InfluxDB,  create a user, then grant that user full permissions on the database.
+You may need to specify the db admin user/pass, depending on your configuration.
 
-    $ cat <<EOF | sudo influx
-    CREATE DATABASE	'bedrock'
-    CREATE USER 'minecraft' WITH PASSWORD 'bedrock'
-    GRANT ALL ON 'bedrock' TO 'minecraft'
-    EXIT
-    
-    EOF
+    $ influx -execute "CREATE DATABASE bedrock"
+    $ influx -execute "CREATE USER minecraft WITH PASSWORD 'bedrock'"
+    $ influx -execute "GRANT ALL ON bedrock TO minecraft"
 
 Update the do_updates shell script with your information, and give it a spin.
 
