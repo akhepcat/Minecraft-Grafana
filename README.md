@@ -20,6 +20,14 @@ and then restart the instance.
 # Using
 You'll need to create a database for InfluxDB,  create a user, then grant that user full permissions on the database.
 
+    \$ influx <<EOF
+    CREATE DATABASE	'bedrock'
+    CREATE USER 'minecraft' WITH PASSWORD 'bedrock'
+    GRANT ALL ON 'bedrock' TO 'minecraft'
+    EXIT
+    
+    EOF
+
 Update the do_updates shell script with your information, and give it a spin.
 
 the python script has some built-in help as well as an option debug parameter which will display the data received from the minecraft server.
