@@ -14,7 +14,7 @@ You can install the dependencies via github source, or via your package manager 
 
 If you install grafana via docker, you'll need to install the panel plugin via the docker shell:
 
-    docker exec -it grafana grafana-cli plugins install grafana-piechart-panel
+    $ sudo docker exec -it grafana grafana-cli plugins install grafana-piechart-panel
     
 and then restart the docker instance.
 
@@ -22,7 +22,7 @@ and then restart the docker instance.
 # Using
 You'll need to create a database for InfluxDB,  create a user, then grant that user full permissions on the database.
 
-    $ influx <<EOF
+    $ cat <<EOF | sudo influx
     CREATE DATABASE	'bedrock'
     CREATE USER 'minecraft' WITH PASSWORD 'bedrock'
     GRANT ALL ON 'bedrock' TO 'minecraft'
