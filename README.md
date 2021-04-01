@@ -20,7 +20,7 @@ and then restart the instance.
 # Using
 You'll need to create a database for InfluxDB,  create a user, then grant that user full permissions on the database.
 
-    \$ influx <<EOF
+    $ influx <<EOF
     CREATE DATABASE	'bedrock'
     CREATE USER 'minecraft' WITH PASSWORD 'bedrock'
     GRANT ALL ON 'bedrock' TO 'minecraft'
