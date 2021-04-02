@@ -1,0 +1,98 @@
+#!/usr/bin/python3
+import re
+import sys
+import argparse
+import mcstatus
+from influxdb import InfluxDBClient
+
+
+#  br_servers = "mc1.example.com:25565", "mc2.example.com:25566", "mc3.example.com:25567"
+
+def main(debug, dbserver, dbport, dbuser, dbpass, dbname, server, port):
+    """ Read each  Minecraft server in turn, then post the data to the influxdb bucket"""
+    
+    try:
+        minecraft_server = mcstatus.MinecraftServer.lookup(server+":"+str(port))
+        response = minecraft_server.status()
+        server_res = minecraft_server.query()
+    except:
+        print("unable to connect to minecraft server {0} on port {1}".format(server, port))
+        exit(1)
+
+    ping = response.latency			# 0.0044474609894678
+    max_pl = response.players.max		# 10
+    cur_pl = response.players.online		# 0
+    name = server_res.map			# Example Server
+    
+    if (debug or not dbname):
+        print("Name: {0}\n ping: {1}\n size: {2}\n users: {3}\n".format(name, ping, max_pl, cur_pl))
+    
+    if (dbname):
+        try:
+            client = InfluxDBClient(dbserver, dbport, dbuser, dbpass, dbname)
+        except:
+            print("can't connect to database {0} on {1} as {2} with auth as {3} for db {4}".format(dbserver, dbport, dbuser, dbpass, dbname))
+            exit(1)
+
+    json_body = [
+        {
+            "measurement": "ping_latency",
+            "tags": {
+                "host": name
+            },
+            "fields": {
+                "latency": ping
+            }
+        },
+        {
+            "measurement": "user_count",
+            "tags": {
+                "host": name
+            },
+            "fields": {
+                "current": cur_pl,
+                "max": max_pl
+            }
+        }
+    ]
+    
+    try:
+        client.write_points(json_body)
+    except:
+        print("can't write json data to db {0}".format(dbname))
+        exit(1)
+
+    if (debug and dbname):
+        print("Wrote points: {0}".format(json_body))
+
+
+def parse_args():
+    """Parse the CLI arguments prior to main code execution"""
+    parser = argparse.ArgumentParser(
+        description="Poll Minecraft server and send usage data to InfluxDB")
+    
+    parser.add_argument('--dbserver', type=str, required=False, default='localhost',
+                                    help="name or IP of the InfluxDB server (default: localhost)")
+    parser.add_argument('--dbport', type=int, required=False, default=8086,
+                                    help="TCP port of the InfluxDB server (default: 8086)")
+    parser.add_argument('--dbuser', type=str, required=False, default='',
+                                    help="Username for InfluxDB")
+    parser.add_argument('--dbpass', type=str, required=False, default='',
+                                    help="Password for InfluxDB")
+    parser.add_argument('--dbname', type=str, required=False, default='',
+                                    help="database name for InfluxDB")
+
+    parser.add_argument('--server', type=str, required=False, default='localhost',
+                                    help="name or IP of the minecraft server (default: localhost)")
+    parser.add_argument('--port', type=int, required=False, default=25565,
+                                    help="UDP port of the minecraft server (default: 25565)")
+
+    parser.add_argument('--debug', action='store_true',
+                                    help="show debugging information")
+
+
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    args = parse_args()
+    main(debug=args.debug, dbserver=args.dbserver, dbport=args.dbport, dbuser=args.dbuser, dbpass=args.dbpass, dbname=args.dbname, server=args.server, port=args.port)
