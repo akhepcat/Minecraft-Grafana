@@ -8,11 +8,15 @@ from influxdb import InfluxDBClient
 
 #  br_servers = "mc1.example.com:25565", "mc2.example.com:25566", "mc3.example.com:25567"
 
-def main(debug, dbserver, dbport, dbtoken, dbuser, dbpass, dbname, server, port):
+def main(debug, dbserver, dbport, dbuser, dbpass, dbname, server, port):
     """ Read each Bedrock Minecraft server in turn, then post the data to the influxdb bucket"""
     
-    bedrock_server = mcstatus.MinecraftBedrockServer.lookup(server+":"+str(port))
-    response = bedrock_server.status()
+    try:
+        bedrock_server = mcstatus.MinecraftBedrockServer.lookup(server+":"+str(port))
+        response = bedrock_server.status()
+    except:
+        print("unable to connect to minecraft server {0} on port {1}".format(server, port))
+        exit(1)
 
     ping = response.latency			# 0.0044474609894678
     max_pl = response.players_max		# 10
@@ -74,8 +78,6 @@ def parse_args():
                                     help="name or IP of the InfluxDB server (default: localhost)")
     parser.add_argument('--dbport', type=int, required=False, default=8086,
                                     help="TCP port of the InfluxDB server (default: 8086)")
-    parser.add_argument('--dbtoken', type=str, required=False, default='',
-                                    help="Authorization token for InfluxDB")
     parser.add_argument('--dbuser', type=str, required=False, default='',
                                     help="Username for InfluxDB")
     parser.add_argument('--dbpass', type=str, required=False, default='',
@@ -96,4 +98,4 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    main(debug=args.debug, dbserver=args.dbserver, dbport=args.dbport, dbtoken=args.dbtoken, dbuser=args.dbuser, dbpass=args.dbpass, dbname=args.dbname, server=args.server, port=args.port)
+    main(debug=args.debug, dbserver=args.dbserver, dbport=args.dbport, dbuser=args.dbuser, dbpass=args.dbpass, dbname=args.dbname, server=args.server, port=args.port)
