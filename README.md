@@ -6,18 +6,15 @@ Monitoring Minecraft servers with Grafana
 * python3
 * grafana ( https://github.com/grafana/grafana )
 * pichart-panel ( https://grafana.com/grafana/plugins/grafana-piechart-panel/ )
-* InfluxDB ( https://github.com/influxdata/influxdb )
+* InfluxDB 1.x ( https://github.com/influxdata/influxdb )
 * InfluxDBClient ( https://github.com/influxdata/influxdb-python )
 * mcstatus ( https://github.com/Dinnerbone/mcstatus)
 
-You can install the dependencies via github source, or via your package manager where available.
+Install the dependencies via github source, or via your package manager where available.
 
-If you install grafana via docker, you'll need to install the panel plugin via the docker shell:
+You can also install grafana via docker and use either the localhost interface or an http proxy ala lighthttpd/apache/nginx
 
-    $ sudo docker exec -it grafana grafana-cli plugins install grafana-piechart-panel
-    
-and then restart the docker instance.
-
+Influx is best installed via native packages and not via docker.
 
 # Using
 You'll need to create a database for InfluxDB,  create a user, then grant that user full permissions on the database.
